@@ -6,6 +6,7 @@ const port = process.env.PORT;
 const mongoose = require("mongoose");
 const path = require("path");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 
 // Routes
 const departmentsRouter = require("./routes/departments");

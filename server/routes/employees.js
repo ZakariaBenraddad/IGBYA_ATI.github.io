@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const cors = require("cors");
+
 const Employee = require("../model/employeeModel");
 const {
     getAllEmployees,
@@ -8,6 +10,14 @@ const {
     updateEmployeeById,
     deleteEmployeeById,
 } = require("../controller/employeeController");
+
+// router.use(
+//     cors({
+//         credentials: true,
+//         origin: "http://localhost:5173/",
+//     })
+// );
+
 // Get all employees
 router.get("/", getAllEmployees);
 

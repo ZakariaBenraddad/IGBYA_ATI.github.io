@@ -1,23 +1,36 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import "./auth.css";
-import axios from "axios";
-const auth = () => {
+import "./register.css";
+const register = () => {
     const [data, setData] = useState({
+        name: "",
         email: "",
         password: "",
     });
 
-    const loginUser = (e) => {
+    const registerUser = (e) => {
         e.preventDefault(); //prevent the page to load
     };
-
     return (
         <>
-            <div className="Container ">
+            <div className="Container">
                 <div className="Form rounded-3xl">
-                    <h1 className="Form_title text-6xl ">Authentication</h1>
-                    <form onSubmit={loginUser}>
+                    <h1 className="Form_title text-6xl ">Register</h1>
+                    <form onSubmit={registerUser}>
+                        <div className="Form_group">
+                            <label htmlFor="Name" className="Form_label block">
+                                Name
+                            </label>
+                            <input
+                                type="text"
+                                id="Name"
+                                className="Form_input rounded-lg"
+                                placeholder="Name"
+                                value={data.name}
+                                onChange={(e) =>
+                                    setData({ ...data, name: e.target.value })
+                                }
+                            />
+                        </div>
                         <div className="Form_group">
                             <label htmlFor="email" className="Form_label block">
                                 Email
@@ -58,13 +71,10 @@ const auth = () => {
                             Login
                         </button>
                     </form>
-                    <Link className="registerLink" to="/register">
-                        Register
-                    </Link>
                 </div>
             </div>
         </>
     );
 };
 
-export default auth;
+export default register;
