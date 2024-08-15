@@ -1,0 +1,32 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.box {
+    background-color: #2b2e4a;
+    color: white;
+    width: 22rem;
+    height: 16rem;
+    border-radius: 0.6rem;
+    padding: 2.6rem 0.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.nameDepartment {
+    font-size: 3rem;
+    line-height: 1;
+    font-family: "League Spartan", sans-serif;
+    font-weight: 200;
+    margin-top: -2rem;
+    margin-bottom: 1rem;
+}
+.nameChefDepartement {
+    font-family: "Space Mono", monospace;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+}
+.nombreEmployee {
+    font-family: "Space Mono", monospace;
+}

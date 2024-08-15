@@ -1,0 +1,115 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #903749;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.header {
+    margin-top: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3.6rem;
+}
+.mainSection {
+    background-color: #903749;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+}
+.menuLogo {
+    margin-left: 2rem;
+}
+input {
+    background-color: #53354a;
+    border-radius: 2rem;
+    width: 22rem;
+    height: 2.6rem;
+    border: none;
+    padding: 1.2rem !important;
+    font-size: 1rem;
+    color: white;
+}
+input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(83, 53, 74, 0.5);
+    color: #fff;
+}
+.profileSection {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    background-color: #53354a;
+    padding: 0.8rem 1.2rem;
+    border-radius: 1.2rem;
+    margin-right: 2rem;
+}
+.profilePic {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 80%;
+    object-fit: cover;
+}
+.profileTextField {
+    color: #d5d5d5;
+    font-family: "Space Mono", monospace;
+}
+.profileUserJob {
+    color: #adadad;
+    text-align: center;
+}
+
+.heroSection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 4rem;
+}
+.employeesCountSection {
+    width: 70%;
+    height: 10rem;
+    background-color: #2b2e4a;
+    border-radius: 2rem;
+    display: flex;
+    justify-content: space-center;
+    align-items: center;
+}
+.allEmployees {
+    color: #d5d5d5;
+    font-family: "League Spartan", sans-serif;
+    font-size: 3.2rem;
+    font-weight: 300;
+    margin-left: 2rem;
+}
+.centerDepartment {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.departmentGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 4rem;
+    width: 90%;
+}
+
+@media (max-width: 1200px) {
+    .departmentGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .departmentGrid {
+        grid-template-columns: 1fr;
+    }
+}

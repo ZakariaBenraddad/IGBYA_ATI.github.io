@@ -1,0 +1,97 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.Container {
+    background-color: #c2002f;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.Form {
+    background-color: #53354a;
+    padding: 2.8rem 2.6rem;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    flex-direction: column;
+    height: 30rem;
+    gap: 2.6rem;
+    width: 50%;
+}
+.Form_title {
+    color: #d5d5d5;
+    font-family: "League Spartan", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
+}
+
+input[type="password"],
+[type="email"] {
+    padding: 0.6rem;
+    width: 22rem;
+    border: none;
+    border-radius: 0.4rem;
+    background-color: #d5d5d5;
+    color: #333;
+    font-family: "League Spartan", sans-serif;
+    font-size: 1rem;
+    outline: none;
+}
+
+input[type="password"]::placeholder,
+[type="email"]::placeholder {
+    color: #494949;
+}
+
+input[type="password"]:focus,
+[type="email"]:focus {
+    background-color: #fff;
+    box-shadow: 0 0 0.2rem rgba(0, 0, 0, 0.2);
+    color: #494949;
+}
+form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 1.6rem;
+}
+label {
+    color: #d5d5d5;
+    margin-bottom: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+}
+.Form_group {
+    font-family: "League Spartan", sans-serif;
+    flex-basis: 100%;
+}
+.Form_button {
+    margin-top: 2.6rem;
+    background-color: #2b2e4a;
+    color: #fff;
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: 0.4rem;
+    font-family: "League Spartan", sans-serif;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.Form_button:hover {
+    background-color: #a10026;
+}
+
+.Form_button:focus {
+    outline: none;
+    box-shadow: 0 0 0.2rem rgba(0, 0, 0, 0.2);
+}
