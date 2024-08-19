@@ -15,8 +15,14 @@ const adminRouter = require("./routes/admin");
 
 // Middleware
 app.use(express.json());
-app.use(cors());
 
+app.use(
+    cors({
+        origin: "http://localhost:5173", // Update with your frontend's URL
+        methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+        credentials: true, // If you're using cookies or other credentials
+    })
+);
 //set up EJS
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -29,7 +35,7 @@ app.use("/api/admin", adminRouter);
 mongoose
     .connect(process.env.MONGO_URI)
     .then(() => {
-        app.listen(port, () => {
+        app.listen(process.env.PORT, () => {
             console.log(
                 `Server is running on port ${port} and Connected to MongoDB `
             );

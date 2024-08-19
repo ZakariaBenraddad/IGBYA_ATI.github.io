@@ -6,13 +6,17 @@ import DepartmentBoxes from "../../components/departmentBoxes/departmentBoxes";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
+axios.defaults.baseURL = "http://localhost:8000";
 const MainAdmin = () => {
     const [departments, setDepartments] = useState([]);
 
     useEffect(() => {
         axios
-            .get("http://localhost:3000/api/departments")
-            .then((response) => setDepartments(response.data))
+            .get("/api/departments")
+            .then((response) => {
+                console.log("Departments fetched:", response.data);
+                setDepartments(response.data);
+            })
             .catch((err) => console.log(err));
     }, []);
     console.log(departments.data);

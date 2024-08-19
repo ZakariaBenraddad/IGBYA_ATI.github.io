@@ -5,13 +5,14 @@ import Auth from "./pages/auth/auth";
 import MainAdmin from "./pages/mainAdmin/mainAdmin.jsx";
 import Register from "./pages/register/register.jsx";
 import axios from "axios";
+import { Toaster } from "react-hot-toast";
 
-axios.defaults.baseURL = "https://localhost:3000";
-axios.defaults.withCredentials = false; // listen a sat la derti true l hadi kimchi kulchi
+axios.defaults.baseURL = "http://localhost:8000";
 
 function App() {
     return (
         <>
+            <Toaster position="top-center" toastOptions={{ duration: 2000 }} />
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<Auth />} />

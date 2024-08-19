@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const cors = require("cors");
+
 const Department = require("../model/departmentModel");
 const {
     getAllDepartments,
@@ -9,13 +9,6 @@ const {
     updateDepartmentById,
     deleteDepartmentById,
 } = require("../controller/departmetController");
-
-// router.use(
-//     cors({
-//         credentials: true,
-//         origin: "http://localhost:5173/",
-//     })
-// );
 
 // Get all departments
 router.get("/", getAllDepartments);
