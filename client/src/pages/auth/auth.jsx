@@ -1,15 +1,36 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./auth.css";
 import axios from "axios";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 const auth = () => {
+    const navigate = useNavigate();
     const [data, setData] = useState({
         email: "",
         password: "",
     });
 
-    const loginUser = (e) => {
+    const loginUser = async (e) => {
         e.preventDefault(); //prevent the page to load
+        const { email, password } = data;
+        try {
+            const data = await axios.post("api/admin/login", {
+                email,
+                password,
+            });
+            if (data.error) {
+                toast.error("user doesn't exist");
+            } else {
+                setData({});
+                toast.success("👌");
+                navigate("/admin");
+            }
+        } catch (err) {
+            console.log(err);
+            toast.error("user doesn't exist");
+        }
     };
 
     return (

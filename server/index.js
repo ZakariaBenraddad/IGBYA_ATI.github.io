@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
 // Routes
 const departmentsRouter = require("./routes/departments");
@@ -15,6 +16,8 @@ const adminRouter = require("./routes/admin");
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: false }));
 
 app.use(
     cors({

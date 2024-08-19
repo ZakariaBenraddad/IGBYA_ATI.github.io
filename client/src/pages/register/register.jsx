@@ -26,7 +26,7 @@ const Register = () => {
                     password,
                 },
                 {
-                    timeout: 3000,
+                    timeout: 1000,
                 }
             );
             if (response.data.error) {
