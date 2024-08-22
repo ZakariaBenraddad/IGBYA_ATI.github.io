@@ -19,13 +19,17 @@ const MainAdmin = () => {
             })
             .catch((err) => console.log(err));
     }, []);
-    console.log(departments.data);
+    const [query, setQuery] = useState("");
+
     return (
         <div className="container">
             <div className="mainSection">
                 <div className="header">
                     <img className="menuLogo" src={Menu} alt="menu logo" />
-                    <input type="text" />
+                    <input
+                        type="text"
+                        onChange={(e) => setQuery(e.target.value)}
+                    />
                     <div className="profileSection">
                         <div>
                             <img
@@ -55,12 +59,16 @@ const MainAdmin = () => {
                 </div>
                 <div className="centerDepartment">
                     <div className="departmentGrid">
-                        {departments.map((department) => (
-                            <DepartmentBoxes
-                                key={department._id}
-                                department={department}
-                            />
-                        ))}
+                        {departments
+                            .filter((department) =>
+                                department.name.includes(query)
+                            )
+                            .map((department) => (
+                                <DepartmentBoxes
+                                    key={department._id}
+                                    department={department}
+                                />
+                            ))}
                     </div>
                 </div>
             </div>

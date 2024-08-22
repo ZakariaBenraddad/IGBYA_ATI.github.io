@@ -2,9 +2,8 @@ const Admin = require("../model/adminModel");
 const mongoose = require("mongoose");
 const { hashPassword, comparePassword } = require("../helpers/auth");
 const jwt = require("jsonwebtoken");
-const cookieParser = require("cookie-parser");
+//const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
-const { token } = require("morgan");
 dotenv.config();
 const getAdmin = async (req, res) => {
     try {
@@ -65,16 +64,15 @@ const loginAdmin = async (req, res) => {
         // check if password is correct
         const isMatch = await comparePassword(password, admin.password);
         if (isMatch) {
-            jwt.sign(
+            const token = jwt.sign(
                 { email: admin.email, id: admin._id, username: admin.username },
                 process.env.JWT_SECRET,
                 {},
-                (err, result) => {
+                (err, token) => {
                     if (err) throw err;
                     res.cookie("token", token).json(admin);
                 }
             );
-            res.json("Password match");
         }
         if (!isMatch) {
             res.json({ error: "Invalid credentials" });
@@ -83,4 +81,18 @@ const loginAdmin = async (req, res) => {
         console.log(err);
     }
 };
-module.exports = { getAdmin, createAdmin, loginAdmin };
+
+const getProfile = (req, res) => {
+    const token = req.cookies.token;
+    if (token) {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        Admin.findById(decoded.id, (err, admin) => {
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                res.json(admin);
+            }
+        });
+    }
+};
+module.exports = { getAdmin, createAdmin, loginAdmin, getProfile };

@@ -6,6 +6,7 @@ import MainAdmin from "./pages/mainAdmin/mainAdmin.jsx";
 import Register from "./pages/register/register.jsx";
 import axios from "axios";
 import { Toaster } from "react-hot-toast";
+//import AdminContextProvider from "../context/adminContext.jsx";
 
 axios.defaults.baseURL = "http://localhost:8000";
 

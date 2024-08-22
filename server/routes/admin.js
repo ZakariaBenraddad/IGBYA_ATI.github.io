@@ -5,6 +5,7 @@ const {
     getAdmin,
     createAdmin,
     loginAdmin,
+    getProfile,
 } = require("../controller/adminController");
 // Get admin info
 
@@ -13,4 +14,5 @@ router.get("/", getAdmin);
 // Create admin
 router.post("/register", createAdmin);
 router.post("/login", loginAdmin);
+router.get("/profile", getProfile);
 module.exports = router;
