@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(
     cors({
-        origin: "http://localhost:5174", // Update with your frontend's URL
+        origin: "http://localhost:5173", // Update with your frontend's URL
         methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
         credentials: true, // If you're using cookies or other credentials
     })

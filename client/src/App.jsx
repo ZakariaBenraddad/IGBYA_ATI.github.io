@@ -7,7 +7,7 @@ import Register from "./pages/register/register.jsx";
 import axios from "axios";
 import { Toaster } from "react-hot-toast";
 //import AdminContextProvider from "../context/adminContext.jsx";
-
+import SuccessPage from "./pages/managerSuccessPage/managerSuccessPage.jsx";
 axios.defaults.baseURL = "http://localhost:8000";
 
 function App() {
@@ -19,6 +19,7 @@ function App() {
                     <Route path="/login" element={<Auth />} />
                     <Route path="/admin" element={<MainAdmin />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/pop" element={<SuccessPage />} />
                 </Routes>
             </BrowserRouter>
         </>
