@@ -5,6 +5,7 @@ dotenv.config();
 const port = process.env.PORT;
 const mongoose = require("mongoose");
 const path = require("path");
+const { Document, Packer, Paragraph, TextRun } = require("docx");
 const cors = require("cors");
 //const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
@@ -13,6 +14,7 @@ const cookieParser = require("cookie-parser");
 const departmentsRouter = require("./routes/departments");
 const employeesRouter = require("./routes/employees");
 const adminRouter = require("./routes/admin");
+const requestsRouter = require("./routes/newEmployeeInfoRoute");
 
 // Middleware
 app.use(express.json());
@@ -33,6 +35,11 @@ app.set("views", path.join(__dirname, "views"));
 app.use("/api/departments", departmentsRouter);
 app.use("/api/employees", employeesRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/requests", requestsRouter);
+
+app.post("/api/generate-document", async (req, body) => {
+    const { Request } = req.body;
+});
 
 //connect to db
 mongoose
