@@ -43,7 +43,7 @@ const Register = () => {
     };
 
     return (
-        <div className="Container">
+        <div className="Container-register">
             <div className="Form rounded-3xl">
                 <h1 className="Form_title text-6xl">Register</h1>
                 <form onSubmit={registerUser}>

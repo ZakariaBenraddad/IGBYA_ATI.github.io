@@ -50,7 +50,9 @@ const MainAdmin = () => {
                 </div>
                 <div className="heroSection">
                     <div className="employeesCountSection">
-                        <h1 className="allEmployees">All Employees:</h1>
+                        <h1 className="allEmployees">
+                            All Dapartements: {departments.length}
+                        </h1>
                         <div>
                             <h2></h2>
                             <img src="" alt="" />
