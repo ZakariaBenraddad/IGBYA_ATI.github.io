@@ -5,7 +5,8 @@ dotenv.config();
 const port = process.env.PORT;
 const mongoose = require("mongoose");
 const path = require("path");
-const { Document, Packer, Paragraph, TextRun } = require("docx");
+const docx = require("docx");
+const fs = require("fs");
 const cors = require("cors");
 //const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
@@ -15,7 +16,7 @@ const departmentsRouter = require("./routes/departments");
 const employeesRouter = require("./routes/employees");
 const adminRouter = require("./routes/admin");
 const requestsRouter = require("./routes/newEmployeeInfoRoute");
-
+const todoRouter = require("./routes/todoListRoutes");
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
@@ -36,12 +37,8 @@ app.use("/api/departments", departmentsRouter);
 app.use("/api/employees", employeesRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/requests", requestsRouter);
+app.use("/api/todos", todoRouter);
 
-app.post("/api/generate-document", async (req, body) => {
-    const { Request } = req.body;
-});
-
-//connect to db
 mongoose
     .connect(process.env.MONGO_URI)
     .then(() => {

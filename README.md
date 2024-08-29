@@ -1,4 +1,3 @@
-
 # Système de Gestion des Employés Automatisé pour une Efficacité Opérationnelle Accrue
 
 Description

@@ -1,14 +1,15 @@
-//import React from "react";
 import "./mainAdmin.css";
 import Menu from "../../assets/menu.png";
 import Zak from "../../assets/zak.jpg";
 import DepartmentBoxes from "../../components/departmentBoxes/departmentBoxes";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import TodoList from "../../components/TodoList";
 
 axios.defaults.baseURL = "http://localhost:8000";
 const MainAdmin = () => {
     const [departments, setDepartments] = useState([]);
+    const [showTodoList, setShowTodoList] = useState(false);
 
     useEffect(() => {
         axios
@@ -25,7 +26,13 @@ const MainAdmin = () => {
         <div className="container">
             <div className="mainSection">
                 <div className="header">
-                    <img className="menuLogo" src={Menu} alt="menu logo" />
+                    <img
+                        className="menuLogo"
+                        src={Menu}
+                        alt="menu logo"
+                        onClick={() => setShowTodoList(!showTodoList)}
+                        style={{ cursor: "pointer" }}
+                    />
                     <input
                         type="text"
                         onChange={(e) => setQuery(e.target.value)}
@@ -74,6 +81,17 @@ const MainAdmin = () => {
                     </div>
                 </div>
             </div>
+            {showTodoList && (
+                <div className="todo-list-popup">
+                    <TodoList />
+                    <button
+                        className="close-button"
+                        onClick={() => setShowTodoList(false)}
+                    >
+                        Close
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
