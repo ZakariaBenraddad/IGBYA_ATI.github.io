@@ -63,16 +63,27 @@ const AuthManager = () => {
         e.preventDefault();
         try {
             const response = await axios.post(
-                "http://localhost:8000/api/requests",
+                "http://localhost:8000/api/generate-document",
                 formData,
                 {
-                    withCredentials: true, // if you need to send cookies or other credentials
-                    responseType: "blob",
+                    responseType: "blob", // Important for receiving binary data
                 }
             );
-            console.log("Data saved successfully:", response.data);
+
+            // Create a Blob from the response data
+            const blob = new Blob([response.data], {
+                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            });
+
+            // Create a link element and trigger download
+            const link = document.createElement("a");
+            link.href = window.URL.createObjectURL(blob);
+            link.download = "generated_document.docx";
+            link.click();
+
+            console.log("Document generated successfully");
         } catch (error) {
-            console.error("Error saving data:", error);
+            console.error("Error generating document:", error);
         }
     };
 
