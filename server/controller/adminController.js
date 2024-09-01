@@ -2,9 +2,9 @@ const Admin = require("../model/adminModel");
 const mongoose = require("mongoose");
 const { hashPassword, comparePassword } = require("../helpers/auth");
 const jwt = require("jsonwebtoken");
-//const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 dotenv.config();
+
 const getAdmin = async (req, res) => {
     try {
         const admin = await Admin.find();
@@ -39,14 +39,12 @@ const createAdmin = async (req, res) => {
             });
         }
         const hashedPassword = await hashPassword(password);
-        // Hash the password
-        // const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create the admin
         const admin = new Admin({ username, email, password: hashedPassword });
         await admin.save();
 
-        res.status(201).json(admin);
+        res.status(201).json({ message: "Admin created successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -67,32 +65,61 @@ const loginAdmin = async (req, res) => {
             const token = jwt.sign(
                 { email: admin.email, id: admin._id, username: admin.username },
                 process.env.JWT_SECRET,
-                {},
-                (err, token) => {
-                    if (err) throw err;
-                    res.cookie("token", token).json(admin);
-                }
+                { expiresIn: "1h" }
             );
-        }
-        if (!isMatch) {
-            res.json({ error: "Invalid credentials" });
+
+            // Set session
+            req.session.adminId = admin._id;
+            req.session.token = token;
+
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                maxAge: 3600000, // 1 hour
+            }).json({ message: "Login successful" });
+        } else {
+            res.status(401).json({ error: "Invalid credentials" });
         }
     } catch (err) {
         console.log(err);
+        res.status(500).json({ error: "Server error" });
     }
 };
 
-const getProfile = (req, res) => {
-    const token = req.cookies.token;
-    if (token) {
+const getProfile = async (req, res) => {
+    try {
+        const token = req.cookies.token;
+        if (!token) {
+            return res.status(401).json({ error: "No token provided" });
+        }
+
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        Admin.findById(decoded.id, (err, admin) => {
-            if (err) {
-                res.status(500).send(err);
-            } else {
-                res.json(admin);
-            }
-        });
+        const admin = await Admin.findById(decoded.id).select("-password");
+
+        if (!admin) {
+            return res.status(404).json({ error: "Admin not found" });
+        }
+
+        res.json(admin);
+    } catch (err) {
+        if (err instanceof jwt.JsonWebTokenError) {
+            return res.status(401).json({ error: "Invalid token" });
+        }
+        res.status(500).json({ error: "Server error" });
     }
 };
-module.exports = { getAdmin, createAdmin, loginAdmin, getProfile };
+
+const logoutAdmin = (req, res) => {
+    res.clearCookie("token");
+    req.session.destroy((err) => {
+        if (err) {
+            return res
+                .status(500)
+                .json({ error: "Couldn't log out, please try again" });
+        }
+        res.json({ message: "Logged out successfully" });
+    });
+};
+
+module.exports = { getAdmin, createAdmin, loginAdmin, getProfile, logoutAdmin };

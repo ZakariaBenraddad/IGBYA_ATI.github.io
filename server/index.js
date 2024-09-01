@@ -1,4 +1,5 @@
 const express = require("express");
+const session = require("express-session");
 const app = express();
 const dotenv = require("dotenv");
 dotenv.config();
@@ -17,12 +18,22 @@ const employeesRouter = require("./routes/employees");
 const adminRouter = require("./routes/admin");
 const requestsRouter = require("./routes/newEmployeeInfoRoute");
 const todoRouter = require("./routes/todoListRoutes");
-const documentGenerationRoutes = require("./routes/documentGeneration");
+const documentGenerationRoutes = require("./routes/generateDocument");
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: false }));
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 3600000,
+        }, // 1 hour
+    })
+);
 
 app.use(
     cors({
@@ -41,6 +52,11 @@ app.use("/api/admin", adminRouter);
 app.use("/api/requests", requestsRouter);
 app.use("/api/todos", todoRouter);
 app.use("/api", documentGenerationRoutes);
+
+// 404 handler
+app.use((req, res, next) => {
+    res.status(404).json({ message: "Not Found" });
+});
 
 mongoose
     .connect(process.env.MONGO_URI)

@@ -53,19 +53,45 @@ input:focus {
     border-radius: 1.2rem;
     margin-right: 2rem;
 }
+
 .profilePic {
     width: 4rem;
     height: 4rem;
     border-radius: 80%;
     object-fit: cover;
 }
+
 .profileTextField {
     color: #d5d5d5;
     font-family: "Space Mono", monospace;
 }
+
+.profileUserName {
+    font-size: 1.2rem;
+    margin: 0 0 5px 0;
+    color: #d5d5d5;
+}
+
 .profileUserJob {
-    color: #adadad;
-    text-align: center;
+    font-size: 0.9rem;
+    margin: 0;
+    color: #b6b6b6;
+}
+
+.logoutButton {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 20px;
+}
+
+.logoutButton:hover {
+    background-color: #357abd;
 }
 
 .heroSection {
@@ -139,4 +165,39 @@ input:focus {
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .profileSection {
+        flex-direction: column;
+        align-items: flex-start;
+        display: none;
+    }
+
+    .profilePic {
+        margin-bottom: 10px;
+    }
+
+    .profileTextField {
+        margin-bottom: 10px;
+        width: 100%;
+    }
+
+    .logoutButton {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .profileUserName,
+    .profileUserJob {
+        font-size: 0.9rem;
+    }
+
+    .logoutButton {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
 }

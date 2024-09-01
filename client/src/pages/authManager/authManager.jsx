@@ -21,34 +21,66 @@ const AuthManager = () => {
             email: "",
             partnerCompany: "",
         },
+        need: {
+            usage: "",
+            duration: {
+                permanent: false,
+                temporary: false,
+                from: "",
+                to: "",
+            },
+        },
+        description: "",
+        signatures: {
+            requesterDirector: "",
+            functionalAdministrator: "",
+            sigeResponsible: "",
+            rssi: "",
+        },
     });
 
     const handleChange = (e) => {
         const { name, value, checked, type } = e.target;
 
         if (type === "checkbox") {
-            setFormData((prevState) => {
-                const serviceRequested = prevState.serviceRequested;
-                if (checked) {
-                    serviceRequested.push(value);
-                } else {
-                    const index = serviceRequested.indexOf(value);
-                    if (index > -1) {
-                        serviceRequested.splice(index, 1);
+            if (name.startsWith("need.duration")) {
+                const durationKey = name.split(".")[2];
+                setFormData((prevState) => ({
+                    ...prevState,
+                    need: {
+                        ...prevState.need,
+                        duration: {
+                            ...prevState.need.duration,
+                            [durationKey]: checked,
+                        },
+                    },
+                }));
+            } else {
+                setFormData((prevState) => {
+                    const serviceRequested = [...prevState.serviceRequested];
+                    if (checked) {
+                        serviceRequested.push(value);
+                    } else {
+                        const index = serviceRequested.indexOf(value);
+                        if (index > -1) {
+                            serviceRequested.splice(index, 1);
+                        }
                     }
-                }
-                return { ...prevState, serviceRequested };
-            });
-        } else if (
-            name.startsWith("requester") ||
-            name.startsWith("beneficiary")
-        ) {
-            const [section, key] = name.split(".");
+                    return { ...prevState, serviceRequested };
+                });
+            }
+        } else if (name.includes(".")) {
+            const [section, key, subKey] = name.split(".");
             setFormData((prevState) => ({
                 ...prevState,
                 [section]: {
                     ...prevState[section],
-                    [key]: value,
+                    [key]: subKey
+                        ? {
+                              ...prevState[section][key],
+                              [subKey]: value,
+                          }
+                        : value,
                 },
             }));
         } else {
@@ -61,275 +93,307 @@ const AuthManager = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("Form submitted", formData);
         try {
             const response = await axios.post(
                 "http://localhost:8000/api/generate-document",
                 formData,
                 {
-                    responseType: "blob", // Important for receiving binary data
+                    responseType: "json",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 }
             );
-
-            // Create a Blob from the response data
-            const blob = new Blob([response.data], {
-                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            });
-
-            // Create a link element and trigger download
-            const link = document.createElement("a");
-            link.href = window.URL.createObjectURL(blob);
-            link.download = "generated_document.docx";
-            link.click();
-
-            console.log("Document generated successfully");
+            if (response.data && response.data.buffer) {
+                const blob = new Blob([new Uint8Array(response.data.buffer)], {
+                    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute("download", "formulaire_demande_acces.docx");
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            } else {
+                throw new Error("Invalid response format");
+            }
         } catch (error) {
             console.error("Error generating document:", error);
+            alert(
+                `Error generating document: ${
+                    error.response?.data?.message || error.message
+                }`
+            );
         }
     };
 
     return (
-        <div className="flex justify-center items-center w-full min-h-screen">
-            <div className="bg-white p-16 rounded-lg shadow-lg max-w-4xl w-full">
-                <form onSubmit={handleSubmit}>
-                    <h2 className="text-xl mb-2 text-gray-800 border-b-2 border-teal-700 pb-1">
-                        Type de la demande :
-                    </h2>
-                    <div className="mb-5">
-                        <label className="block text-gray-900">
-                            <input
-                                type="radio"
-                                name="requestType"
-                                value="creation"
-                                onChange={handleChange}
-                                className="mr-2"
-                            />
-                            <span>Création</span>
-                        </label>
-                        <label className="block text-gray-900">
-                            <input
-                                type="radio"
-                                name="requestType"
-                                value="modification"
-                                onChange={handleChange}
-                                className="mr-2"
-                            />
-                            <span>Modification</span>
-                        </label>
-                        <label className="block text-gray-900">
-                            <input
-                                type="radio"
-                                name="requestType"
-                                value="suppression"
-                                onChange={handleChange}
-                                className="mr-2"
-                            />
-                            <span>Suppression</span>
-                        </label>
-                        <label className="block text-gray-900">
-                            <input
-                                type="radio"
-                                name="requestType"
-                                value="debridage"
-                                onChange={handleChange}
-                                className="mr-2"
-                            />
-                            <span>Débridage de poste</span>
-                        </label>
+        <div className="flex justify-center items-center w-full min-h-screen bg-gray-100 p-4">
+            <div className="bg-white p-8 rounded-lg shadow-lg max-w-4xl w-full">
+                <h1 className="text-3xl font-bold mb-8 text-center text-gray-800 border-b-2 border-teal-700 pb-4">
+                    FICHE DE DEMANDE SECURITE
+                </h1>
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b border-teal-700 pb-2">
+                            Type de la demande
+                        </h2>
+                        <div className="flex flex-wrap gap-4">
+                            {[
+                                "Création",
+                                "Modification",
+                                "Suppression",
+                                "Débridage de poste",
+                            ].map((type) => (
+                                <label
+                                    key={type}
+                                    className="flex items-center space-x-2 cursor-pointer"
+                                >
+                                    <input
+                                        type="radio"
+                                        name="requestType"
+                                        value={type.toLowerCase()}
+                                        onChange={handleChange}
+                                        className="form-radio text-teal-600 focus:ring-teal-500"
+                                    />
+                                    <span className="text-gray-700">
+                                        {type}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
 
-                    <h2 className="text-xl mb-2 text-gray-800 border-b-2 border-teal-700 pb-1">
-                        Service demandé :
-                    </h2>
-                    <div className="mb-5">
-                        <label className="block text-gray-900">
-                            <input
-                                type="checkbox"
-                                name="serviceRequested"
-                                value="accessRemoteUserToSiRam"
-                                onChange={handleChange}
-                                className="mr-2"
-                            />
-                            Accès distant d’un user RAM au SI RAM
-                        </label>
-                        <label className="block text-gray-900">
-                            <input
-                                type="checkbox"
-                                name="serviceRequested"
-                                value="accessNonStandardUserToWeb"
-                                onChange={handleChange}
-                                className="mr-2"
-                            />
-                            Accès non standard d’un user RAM au Web
-                        </label>
-                        <label className="block text-gray-900">
-                            <input
-                                type="checkbox"
-                                name="serviceRequested"
-                                value="accessRemotePartner"
-                                onChange={handleChange}
-                                className="mr-2"
-                            />
-                            Accès distant pour partenaire
-                        </label>
-                        <label className="block text-gray-900">
-                            <input
-                                type="checkbox"
-                                name="serviceRequested"
-                                value="accessLanForContractors"
-                                onChange={handleChange}
-                                className="mr-2"
-                            />
-                            Accès LAN pour prestataires
-                        </label>
-                        <label className="block text-gray-900">
-                            <input
-                                type="checkbox"
-                                name="serviceRequested"
-                                value="other"
-                                onChange={handleChange}
-                                className="mr-2"
-                            />
-                            Autre (à préciser en complément)
-                        </label>
+                    <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b border-teal-700 pb-2">
+                            Service demandé
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                                "Accès distant d'un user RAM au SI RAM",
+                                "Accès non standard d'un user RAM au Web",
+                                "Accès distant pour partenaire",
+                                "Accès LAN pour prestataires",
+                                "Autre (à préciser en complément)",
+                            ].map((service) => (
+                                <label
+                                    key={service}
+                                    className="flex items-center space-x-2 cursor-pointer"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        name="serviceRequested"
+                                        value={service}
+                                        onChange={handleChange}
+                                        className="form-checkbox text-teal-600 focus:ring-teal-500"
+                                    />
+                                    <span className="text-gray-700">
+                                        {service}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
 
-                    <h2 className="text-xl mb-2 text-gray-800 border-b-2 border-teal-700 pb-1">
-                        Demandeur (RAM) :
-                    </h2>
-                    <div className="mb-5">
-                        <label className="block mb-4 text-gray-900">
-                            Nom:
-                            <input
-                                type="text"
-                                name="requester.lastName"
-                                value={formData.requester.lastName}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
-                        <label className="block mb-4 text-gray-900">
-                            Prénom:
-                            <input
-                                type="text"
-                                name="requester.firstName"
-                                value={formData.requester.firstName}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
-                        <label className="block mb-4 text-gray-900">
-                            Matricule:
-                            <input
-                                type="text"
-                                name="requester.employeeId"
-                                value={formData.requester.employeeId}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
-                        <label className="block mb-4 text-gray-900">
-                            Direction:
-                            <input
-                                type="text"
-                                name="requester.department"
-                                value={formData.requester.department}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
-                        <label className="block mb-4 text-gray-900">
-                            Site:
-                            <input
-                                type="text"
-                                name="requester.site"
-                                value={formData.requester.site}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
-                        <label className="block mb-4 text-gray-900">
-                            Date demande:
-                            <input
-                                type="date"
-                                name="requester.requestDate"
-                                value={formData.requester.requestDate}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
+                    <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b border-teal-700 pb-2">
+                            Demandeur (RAM)
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                                "lastName",
+                                "firstName",
+                                "employeeId",
+                                "department",
+                                "site",
+                                "requestDate",
+                            ].map((field) => (
+                                <label key={field} className="block">
+                                    <span className="text-gray-700 font-medium">
+                                        {field.charAt(0).toUpperCase() +
+                                            field
+                                                .slice(1)
+                                                .replace(/([A-Z])/g, " $1")
+                                                .trim()}
+                                        :
+                                    </span>
+                                    <input
+                                        type={
+                                            field === "requestDate"
+                                                ? "date"
+                                                : "text"
+                                        }
+                                        name={`requester.${field}`}
+                                        value={formData.requester[field]}
+                                        onChange={handleChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+                                    />
+                                </label>
+                            ))}
+                        </div>
                     </div>
 
-                    <h2 className="text-xl mb-2 text-gray-800 border-b-2 border-teal-700 pb-1">
-                        Bénéficiaire (si autre que demandeur):
-                    </h2>
-                    <div className="mb-5">
-                        <label className="block mb-4 text-gray-900">
-                            Nom:
-                            <input
-                                type="text"
-                                name="beneficiary.lastName"
-                                value={formData.beneficiary.lastName}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
-                        <label className="block mb-4 text-gray-900">
-                            Prénom:
-                            <input
-                                type="text"
-                                name="beneficiary.firstName"
-                                value={formData.beneficiary.firstName}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
-                        <label className="block mb-4 text-gray-900">
-                            Matricule:
-                            <input
-                                type="text"
-                                name="beneficiary.employeeId"
-                                value={formData.beneficiary.employeeId}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
-                        <label className="block mb-4 text-gray-900">
-                            Phone:
-                            <input
-                                type="tel"
-                                name="beneficiary.phone"
-                                value={formData.beneficiary.phone}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
-                        <label className="block mb-4 text-gray-900">
-                            Email:
-                            <input
-                                type="email"
-                                name="beneficiary.email"
-                                value={formData.beneficiary.email}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
-                        <label className="block mb-4 text-gray-900">
-                            Société Partenaire:
-                            <input
-                                type="text"
-                                name="beneficiary.partnerCompany"
-                                value={formData.beneficiary.partnerCompany}
-                                onChange={handleChange}
-                                className="w-full mt-1 p-2 border border-gray-800 rounded"
-                            />
-                        </label>
+                    <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b border-teal-700 pb-2">
+                            Bénéficiaire (si autre que demandeur)
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                                "lastName",
+                                "firstName",
+                                "employeeId",
+                                "phone",
+                                "email",
+                                "partnerCompany",
+                            ].map((field) => (
+                                <label key={field} className="block">
+                                    <span className="text-gray-700 font-medium">
+                                        {field.charAt(0).toUpperCase() +
+                                            field
+                                                .slice(1)
+                                                .replace(/([A-Z])/g, " $1")
+                                                .trim()}
+                                        :
+                                    </span>
+                                    <input
+                                        type={
+                                            field === "email" ? "email" : "text"
+                                        }
+                                        name={`beneficiary.${field}`}
+                                        value={formData.beneficiary[field]}
+                                        onChange={handleChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+                                    />
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b border-teal-700 pb-2">
+                            Besoin (les accès pour non RAM ne peuvent être
+                            permanents)
+                        </h2>
+                        <div className="space-y-4">
+                            <label className="block">
+                                <span className="text-gray-700 font-medium">
+                                    Usage:
+                                </span>
+                                <input
+                                    type="text"
+                                    name="need.usage"
+                                    value={formData.need.usage}
+                                    onChange={handleChange}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+                                />
+                            </label>
+                            <div className="flex space-x-4">
+                                {["permanent", "temporary"].map(
+                                    (durationType) => (
+                                        <label
+                                            key={durationType}
+                                            className="flex items-center space-x-2 cursor-pointer"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                name={`need.duration.${durationType}`}
+                                                checked={
+                                                    formData.need.duration[
+                                                        durationType
+                                                    ]
+                                                }
+                                                onChange={handleChange}
+                                                className="form-checkbox text-teal-600 focus:ring-teal-500"
+                                            />
+                                            <span className="text-gray-700 capitalize">
+                                                {durationType}
+                                            </span>
+                                        </label>
+                                    )
+                                )}
+                            </div>
+                            {formData.need.duration.temporary && (
+                                <div className="flex space-x-4">
+                                    {["from", "to"].map((dateType) => (
+                                        <label
+                                            key={dateType}
+                                            className="block flex-1"
+                                        >
+                                            <span className="text-gray-700 font-medium capitalize">
+                                                {dateType}:
+                                            </span>
+                                            <input
+                                                type="date"
+                                                name={`need.duration.${dateType}`}
+                                                value={
+                                                    formData.need.duration[
+                                                        dateType
+                                                    ]
+                                                }
+                                                onChange={handleChange}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+                                            />
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b border-teal-700 pb-2">
+                            Description du besoin
+                        </h2>
+                        <textarea
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            rows="4"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+                            placeholder="Décrivez votre besoin en détail..."
+                        ></textarea>
+                    </div>
+
+                    <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b border-teal-700 pb-2">
+                            Signatures
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                                "requesterDirector",
+                                "functionalAdministrator",
+                                "sigeResponsible",
+                                "rssi",
+                            ].map((role) => (
+                                <div key={role}>
+                                    <h3 className="font-medium text-gray-700 mb-1">
+                                        {role
+                                            .split(/(?=[A-Z])/)
+                                            .join(" ")
+                                            .replace(/\b\w/g, (l) =>
+                                                l.toUpperCase()
+                                            )}
+                                    </h3>
+                                    <input
+                                        type="text"
+                                        name={`signatures.${role}`}
+                                        value={formData.signatures[role]}
+                                        onChange={handleChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50"
+                                        placeholder="Nom, date et signature"
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     <button
                         type="submit"
-                        className="w-full p-2 bg-teal-700 text-white text-lg rounded hover:bg-teal-800 transition duration-300"
+                        className="w-full py-3 px-4 bg-teal-600 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-75 transition duration-300"
                     >
-                        Submit
+                        Générer le Document
                     </button>
                 </form>
             </div>

@@ -5,11 +5,16 @@ import DepartmentBoxes from "../../components/departmentBoxes/departmentBoxes";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import TodoList from "../../components/TodoList";
+import { useNavigate } from "react-router-dom";
 
 axios.defaults.baseURL = "http://localhost:8000";
+axios.defaults.withCredentials = true; // Important for sending cookies with requests
+
 const MainAdmin = () => {
     const [departments, setDepartments] = useState([]);
     const [showTodoList, setShowTodoList] = useState(false);
+    const [query, setQuery] = useState("");
+    const navigate = useNavigate();
 
     useEffect(() => {
         axios
@@ -20,7 +25,16 @@ const MainAdmin = () => {
             })
             .catch((err) => console.log(err));
     }, []);
-    const [query, setQuery] = useState("");
+
+    const handleLogout = async () => {
+        try {
+            await axios.post("/api/admin/logout");
+            // Redirect to login page or home page after successful logout
+            navigate("/login"); // Adjust this path as needed
+        } catch (error) {
+            console.error("Logout failed", error);
+        }
+    };
 
     return (
         <div className="container">
@@ -49,10 +63,11 @@ const MainAdmin = () => {
                             <h2 className="profileUserName">
                                 Zakaria benraddad
                             </h2>
-                            {/* Depends on the user */}
                             <p className="profileUserJob">Developer Web</p>
-                            {/* Depends on the user */}
                         </div>
+                        <button onClick={handleLogout} className="logoutButton">
+                            Logout
+                        </button>
                     </div>
                 </div>
                 <div className="heroSection">
