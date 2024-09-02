@@ -20,11 +20,13 @@ const {
 } = require("docx");
 const fs = require("fs");
 const path = require("path");
+let imageData;
 
 router.post("/generate-document", async (req, res) => {
-    console.log("Received request for document generation", req.body);
+    console.log("Received request for document generation");
     try {
         const formData = req.body;
+        console.log("Form data received:", JSON.stringify(formData, null, 2));
 
         // Create a new document
         const doc = new Document({
@@ -37,7 +39,7 @@ router.post("/generate-document", async (req, res) => {
                         createSection("Type de la demande :", [
                             {
                                 text: "Création",
-                                checked: formData.requestType === "creation",
+                                checked: formData.requestType === "création",
                             },
                             {
                                 text: "Modification",
@@ -50,42 +52,19 @@ router.post("/generate-document", async (req, res) => {
                             },
                             {
                                 text: "Débridage de poste",
-                                checked: formData.requestType === "debridage",
+                                checked:
+                                    formData.requestType ===
+                                    "débridage de poste",
                             },
                         ]),
                         new Paragraph({ text: " " }),
-                        createSection("Service demandé :", [
-                            {
-                                text: "Accès distant d'un user RAM au SI RAM",
-                                checked: formData.serviceRequested.includes(
-                                    "Accès distant d'un user RAM au SI RAM"
-                                ),
-                            },
-                            {
-                                text: "Accès non standard d'un user RAM au Web",
-                                checked: formData.serviceRequested.includes(
-                                    "Accès non standard d'un user RAM au Web"
-                                ),
-                            },
-                            {
-                                text: "Accès distant pour partenaire",
-                                checked: formData.serviceRequested.includes(
-                                    "Accès distant pour partenaire"
-                                ),
-                            },
-                            {
-                                text: "Accès LAN pour prestataires",
-                                checked: formData.serviceRequested.includes(
-                                    "Accès LAN pour prestataires"
-                                ),
-                            },
-                            {
-                                text: "Autre (à préciser en complément)",
-                                checked: formData.serviceRequested.includes(
-                                    "Autre (à préciser en complément)"
-                                ),
-                            },
-                        ]),
+                        createSection(
+                            "Service demandé :",
+                            formData.serviceRequested.map((service) => ({
+                                text: service,
+                                checked: true,
+                            }))
+                        ),
                         new Paragraph({ text: " " }),
                         createRequesterTable(formData.requester),
                         new Paragraph({ text: " " }),
@@ -95,7 +74,7 @@ router.post("/generate-document", async (req, res) => {
                         new Paragraph({ text: " " }),
                         createDescriptionSection(formData.description),
                         new Paragraph({ text: " " }),
-                        createSignatureSection(),
+                        createSignatureSection(formData.signatures),
                     ],
                 },
             ],
@@ -118,7 +97,6 @@ router.post("/generate-document", async (req, res) => {
                 ),
             ];
         }
-
         function createHeader() {
             return new Table({
                 width: {
@@ -142,7 +120,7 @@ router.post("/generate-document", async (req, res) => {
                                                 data: fs.readFileSync(
                                                     path.join(
                                                         __dirname,
-                                                        "../assets/ram_logo.png"
+                                                        "../../client/src/assets/Capture d'écran 2024-08-30 135118"
                                                     )
                                                 ),
                                                 transformation: {
@@ -192,7 +170,6 @@ router.post("/generate-document", async (req, res) => {
                 ],
             });
         }
-
         function createRequesterTable(requester) {
             return new Table({
                 width: {
@@ -323,40 +300,274 @@ router.post("/generate-document", async (req, res) => {
                 ],
             });
         }
-
         function createBeneficiaryTable(beneficiary) {
-            // Implement the beneficiary table similar to the requester table
-            // This is a placeholder and needs to be implemented
+            return new Table({
+                width: {
+                    size: 100,
+                    type: WidthType.PERCENTAGE,
+                },
+                rows: [
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [
+                                    new Paragraph("Beneficiary Information"),
+                                ],
+                                columnSpan: 2,
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("Nom")],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new Paragraph(beneficiary.lastName || ""),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("Prénom")],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new Paragraph(beneficiary.firstName || ""),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("Matricule")],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new Paragraph(beneficiary.employeeId || ""),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("Téléphone")],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new Paragraph(beneficiary.phone || ""),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("Email")],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new Paragraph(beneficiary.email || ""),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("Société Partenaire")],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new Paragraph(
+                                        beneficiary.partnerCompany || ""
+                                    ),
+                                ],
+                            }),
+                        ],
+                    }),
+                ],
+            });
         }
-
         function createNeedSection(need) {
-            // Implement the need section
-            // This is a placeholder and needs to be implemented
+            return new Table({
+                width: {
+                    size: 100,
+                    type: WidthType.PERCENTAGE,
+                },
+                rows: [
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [
+                                    new Paragraph({
+                                        text: "Besoin (les accès pour non RAM ne peuvent être permanents)",
+                                        bold: true,
+                                    }),
+                                ],
+                                columnSpan: 2,
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("Usage")],
+                            }),
+                            new TableCell({
+                                children: [new Paragraph(need.usage || "")],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("Permanente")],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new CheckBox({
+                                        checked: need.duration.permanent,
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("Temporaire")],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new CheckBox({
+                                        checked: need.duration.temporary,
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("De")],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new Paragraph(need.duration.from || ""),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("À")],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new Paragraph(need.duration.to || ""),
+                                ],
+                            }),
+                        ],
+                    }),
+                ],
+            });
         }
-
         function createDescriptionSection(description) {
-            // Implement the description section
-            // This is a placeholder and needs to be implemented
+            return new Paragraph({
+                children: [
+                    new TextRun("Description: "),
+                    new TextRun(description || "No description provided"),
+                ],
+            });
         }
-
-        function createSignatureSection() {
-            // Implement the signature section
-            // This is a placeholder and needs to be implemented
+        function createSignatureSection(signatures) {
+            return new Table({
+                width: {
+                    size: 100,
+                    type: WidthType.PERCENTAGE,
+                },
+                rows: [
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [
+                                    new Paragraph("Accord Directeur Demandeur"),
+                                ],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new Paragraph(signatures.requesterDirector),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [
+                                    new Paragraph(
+                                        "Accord Administrateur Fonctionnel"
+                                    ),
+                                ],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new Paragraph(
+                                        signatures.functionalAdministrator
+                                    ),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [
+                                    new Paragraph(
+                                        "Accord Responsable SI (GE, OC ou IT)"
+                                    ),
+                                ],
+                            }),
+                            new TableCell({
+                                children: [
+                                    new Paragraph(signatures.sigeResponsible),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new TableRow({
+                        children: [
+                            new TableCell({
+                                children: [new Paragraph("Accord RSSI")],
+                            }),
+                            new TableCell({
+                                children: [new Paragraph(signatures.rssi)],
+                            }),
+                        ],
+                    }),
+                ],
+            });
         }
-
-        // Generate the document
         const buffer = await Packer.toBuffer(doc);
-        // Set headers for file download
-        res.json({
-            message: "Document generated successfully",
-            buffer: Array.from(new Uint8Array(buffer)),
-        });
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        );
+        res.setHeader(
+            "Content-Disposition",
+            "attachment; filename=demande_de_securite.docx"
+        );
+        res.send(buffer);
     } catch (error) {
         console.error("Error generating document:", error);
-        res.status(500).json({
-            message: "Error generating document",
-            error: error.message,
-        });
+        res.status(500).send("Error generating document");
     }
 });
 

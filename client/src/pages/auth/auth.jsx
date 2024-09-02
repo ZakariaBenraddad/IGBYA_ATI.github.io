@@ -16,14 +16,15 @@ const auth = () => {
         e.preventDefault(); //prevent the page to load
         const { email, password } = data;
         try {
-            const data = await axios.post("api/admin/login", {
+            const response = await axios.post("api/admin/login", {
                 email,
                 password,
             });
-            if (data.error) {
+            if (response.data.error) {
                 toast.error("user doesn't exist");
             } else {
                 setData({});
+                localStorage.setItem("token", response.data.token); // Store the token
                 toast.success("👌");
                 navigate("/admin");
             }

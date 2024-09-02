@@ -29,8 +29,8 @@ const MainAdmin = () => {
     const handleLogout = async () => {
         try {
             await axios.post("/api/admin/logout");
-            // Redirect to login page or home page after successful logout
-            navigate("/login"); // Adjust this path as needed
+            localStorage.removeItem("token"); // Remove the token
+            navigate("/login"); // Redirect to login page
         } catch (error) {
             console.error("Logout failed", error);
         }

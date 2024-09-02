@@ -93,7 +93,7 @@ const AuthManager = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Form submitted", formData);
+        console.log("Form data being sent:", JSON.stringify(formData, null, 2));
         try {
             const response = await axios.post(
                 "http://localhost:8000/api/generate-document",
@@ -105,6 +105,7 @@ const AuthManager = () => {
                     },
                 }
             );
+            console.log("Response received:", response);
             if (response.data && response.data.buffer) {
                 const blob = new Blob([new Uint8Array(response.data.buffer)], {
                     type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -120,7 +121,8 @@ const AuthManager = () => {
                 throw new Error("Invalid response format");
             }
         } catch (error) {
-            console.error("Error generating document:", error);
+            console.error("Detailed error:", error);
+            console.error("Error response:", error.response);
             alert(
                 `Error generating document: ${
                     error.response?.data?.message || error.message
