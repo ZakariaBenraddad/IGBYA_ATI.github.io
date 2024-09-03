@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./auth.css";
-import axios from "axios";
+//import axios from "axios";
+import { login } from "../../components/API/ApiService";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 const auth = () => {
@@ -16,10 +17,7 @@ const auth = () => {
         e.preventDefault(); //prevent the page to load
         const { email, password } = data;
         try {
-            const response = await axios.post("api/admin/login", {
-                email,
-                password,
-            });
+            const response = await login(email, password);
             if (response.data.error) {
                 toast.error("user doesn't exist");
             } else {
@@ -33,7 +31,6 @@ const auth = () => {
             toast.error("user doesn't exist");
         }
     };
-
     return (
         <>
             <div className="Container-login">

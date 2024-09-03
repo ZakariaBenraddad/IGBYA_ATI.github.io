@@ -51,6 +51,7 @@ const createAdmin = async (req, res) => {
 };
 
 //login endpoint
+//login endpoint
 const loginAdmin = async (req, res) => {
     try {
         const { email, password } = req.body;

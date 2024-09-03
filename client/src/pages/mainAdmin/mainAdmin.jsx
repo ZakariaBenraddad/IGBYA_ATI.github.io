@@ -3,6 +3,7 @@ import Menu from "../../assets/menu.png";
 import Zak from "../../assets/zak.jpg";
 import DepartmentBoxes from "../../components/departmentBoxes/departmentBoxes";
 import axios from "axios";
+import { logout } from "../../components/API/ApiService";
 import { useEffect, useState } from "react";
 import TodoList from "../../components/TodoList";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +15,7 @@ const MainAdmin = () => {
     const [departments, setDepartments] = useState([]);
     const [showTodoList, setShowTodoList] = useState(false);
     const [query, setQuery] = useState("");
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,80 +24,90 @@ const MainAdmin = () => {
             .then((response) => {
                 console.log("Departments fetched:", response.data);
                 setDepartments(response.data);
+                setLoading(false); // Set loading to false after data is fetched
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                setLoading(false); // Set loading to false in case of error
+            });
     }, []);
 
     const handleLogout = async () => {
         try {
-            await axios.post("/api/admin/logout");
+            await logout();
             localStorage.removeItem("token"); // Remove the token
             navigate("/login"); // Redirect to login page
         } catch (error) {
             console.error("Logout failed", error);
         }
     };
-
     return (
         <div className="container">
-            <div className="mainSection">
-                <div className="header">
-                    <img
-                        className="menuLogo"
-                        src={Menu}
-                        alt="menu logo"
-                        onClick={() => setShowTodoList(!showTodoList)}
-                        style={{ cursor: "pointer" }}
-                    />
-                    <input
-                        type="text"
-                        onChange={(e) => setQuery(e.target.value)}
-                    />
-                    <div className="profileSection">
-                        <div>
-                            <img
-                                src={Zak}
-                                alt="profile"
-                                className="profilePic"
-                            />
-                        </div>
-                        <div className="profileTextField">
-                            <h2 className="profileUserName">
-                                Zakaria benraddad
-                            </h2>
-                            <p className="profileUserJob">Developer Web</p>
-                        </div>
-                        <button onClick={handleLogout} className="logoutButton">
-                            Logout
-                        </button>
-                    </div>
-                </div>
-                <div className="heroSection">
-                    <div className="employeesCountSection">
-                        <h1 className="allEmployees">
-                            All Dapartements: {departments.length}
-                        </h1>
-                        <div>
-                            <h2></h2>
-                            <img src="" alt="" />
-                        </div>
-                    </div>
-                </div>
-                <div className="centerDepartment">
-                    <div className="departmentGrid">
-                        {departments
-                            .filter((department) =>
-                                department.name.includes(query)
-                            )
-                            .map((department) => (
-                                <DepartmentBoxes
-                                    key={department._id}
-                                    department={department}
+            {loading ? (
+                <div>Loading...</div> // Display loading message
+            ) : (
+                <div className="mainSection">
+                    <div className="header">
+                        <img
+                            className="menuLogo"
+                            src={Menu}
+                            alt="menu logo"
+                            onClick={() => setShowTodoList(!showTodoList)}
+                            style={{ cursor: "pointer" }}
+                        />
+                        <input
+                            type="text"
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+                        <div className="profileSection">
+                            <div>
+                                <img
+                                    src={Zak}
+                                    alt="profile"
+                                    className="profilePic"
                                 />
-                            ))}
+                            </div>
+                            <div className="profileTextField">
+                                <h2 className="profileUserName">
+                                    Zakaria benraddad
+                                </h2>
+                                <p className="profileUserJob">Developer Web</p>
+                            </div>
+                            <button
+                                onClick={handleLogout}
+                                className="logoutButton"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                    <div className="heroSection">
+                        <div className="employeesCountSection">
+                            <h1 className="allEmployees">
+                                All Dapartements: {departments.length}
+                            </h1>
+                            <div>
+                                <h2></h2>
+                                <img src="" alt="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="centerDepartment">
+                        <div className="departmentGrid">
+                            {departments
+                                .filter((department) =>
+                                    department.name.includes(query)
+                                )
+                                .map((department) => (
+                                    <DepartmentBoxes
+                                        key={department._id}
+                                        department={department}
+                                    />
+                                ))}
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
             {showTodoList && (
                 <div className="todo-list-popup">
                     <TodoList />
